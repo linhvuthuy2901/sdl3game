@@ -55,17 +55,13 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 {
     SDL_SetRenderDrawColor(renderer,255, 182, 193, 255);
     SDL_RenderClear(renderer);
-    SDL_RenderPresent(renderer);
-    
-    
+    const int GRID_SIZE=40;
     SDL_SetRenderDrawColor(renderer,0, 182, 193, 255);
-    for (int x = 0 ; x < 800; x += 40)
+    for (int x = 0 ; x < 800; x += GRID_SIZE)
     {
         SDL_RenderLine(renderer, x, 0, x, 600);
     }
-    SDL_RenderPresent(renderer);
-    SDL_SetRenderDrawColor(renderer,0, 182, 193, 255);
-    for (int y = 0 ; y < 600 ; y += 40)
+    for (int y = 0 ; y < 600 ; y += GRID_SIZE)
     {
         SDL_RenderLine(renderer, 0, y, 800, y);
     }
