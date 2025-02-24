@@ -1,6 +1,7 @@
 #include "SDL3/SDL_init.h"
 #include "SDL3/SDL_oldnames.h"
 #include "SDL3/SDL_rect.h"
+#include "SDL3/SDL_scancode.h"
 #include "SDL3/SDL_video.h"
 #include "sdl3/SDL_events.h"
 #include "sdl3/SDL_render.h"
@@ -62,6 +63,34 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
     if(event->type==SDL_EVENT_QUIT)
     {
         return SDL_APP_SUCCESS;//thanh cong co the thoat
+    }
+    const int GRID_SIZE=40;
+    if(event->type==SDL_EVENT_KEY_DOWN)
+    {
+        switch(event->key.scancode)
+        {
+            case SDL_SCANCODE_DOWN:
+            {
+                player.y+= GRID_SIZE;
+                break;
+            }
+            case SDL_SCANCODE_UP:
+            {
+                player.y-=GRID_SIZE;
+                break;
+            }
+            case SDL_SCANCODE_LEFT:
+            {
+                player.x-=GRID_SIZE;
+                break;
+            }
+            case SDL_SCANCODE_RIGHT:
+            {
+                player.x+=GRID_SIZE;
+                break;
+            }
+            default:break;
+        }
     }
     return SDL_APP_CONTINUE;  
 }
