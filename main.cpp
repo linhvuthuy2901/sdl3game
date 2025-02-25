@@ -2,6 +2,7 @@
 #include "SDL3/SDL_oldnames.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_scancode.h"
+#include "SDL3/SDL_timer.h"
 #include "SDL3/SDL_video.h"
 #include "sdl3/SDL_events.h"
 #include "sdl3/SDL_render.h"
@@ -9,6 +10,8 @@
 #define SDL_MAIN_USE_CALLBACKS
 #include <sdl3/sdl.h>
 #include <sdl3/sdl_main.h>
+#include <vector>
+using namespace std;
 
 SDL_Window* window;
 SDL_Renderer* renderer;
@@ -26,9 +29,13 @@ typedef struct
 {
 int x,y;
 int w,h;
-}Object;
+}Object; 
 
-Object player;
+vector <Object> body;
+
+enum Direction {LEFT,RIGHT,UP,DOWN};
+Direction direction=RIGHT;
+const int GRID_SIZE=40;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 {
@@ -51,10 +58,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
             SDL_Log("Error creating renderer: %s", SDL_GetError());
             return SDL_APP_FAILURE;
         }
-        player.x=360;
-        player.y=280;
-        player.w=40;
-        player.h=40;
+        body.push_back({360,280,GRID_SIZE,GRID_SIZE});
         return SDL_APP_CONTINUE;
 }
 
@@ -64,29 +68,32 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
     {
         return SDL_APP_SUCCESS;//thanh cong co the thoat
     }
-    const int GRID_SIZE=40;
     if(event->type==SDL_EVENT_KEY_DOWN)
     {
         switch(event->key.scancode)
         {
             case SDL_SCANCODE_DOWN:
-            {
-                player.y+= GRID_SIZE;
+            {   
+                if(direction!=UP)
+                {direction=DOWN;}
                 break;
             }
             case SDL_SCANCODE_UP:
             {
-                player.y-=GRID_SIZE;
+                if(direction!=DOWN)
+                {direction=UP;}
                 break;
             }
             case SDL_SCANCODE_LEFT:
             {
-                player.x-=GRID_SIZE;
+                if(direction!=RIGHT)
+                {direction=LEFT;}
                 break;
             }
             case SDL_SCANCODE_RIGHT:
             {
-                player.x+=GRID_SIZE;
+                if(direction!=LEFT)
+                {direction=RIGHT;}
                 break;
             }
             default:break;
@@ -99,7 +106,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 {
     SDL_SetRenderDrawColor(renderer,255, 182, 193, 255);
     SDL_RenderClear(renderer);
-    const int GRID_SIZE=40;
     SDL_SetRenderDrawColor(renderer,255, 105, 180, 0);
     for (int x = 0 ; x < 800; x += GRID_SIZE)
     {
@@ -111,8 +117,26 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     }
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-   SDL_FRect rect ={(float)player.x,(float)player.y,(float)player.w,(float)player.h};
-   SDL_RenderFillRect(renderer, &rect);
-       SDL_RenderPresent(renderer);
+    SDL_FRect rect ={(float)body[0].x,(float)body[0].y,(float)body[0].w,(float)body[0].h};
+     SDL_RenderFillRect(renderer, &rect);
+    SDL_SetRenderDrawColorFloat(renderer, 0, 255, 0, 0);
+       
+       if(direction==UP)
+        {
+        body[0].y-=GRID_SIZE;
+        }
+        if(direction==DOWN)
+        {
+        body[0].y+=GRID_SIZE;
+        }
+        if(direction==RIGHT)
+        {
+        body[0].x+=GRID_SIZE;
+        }
+        if(direction==LEFT)
+        {
+        body[0].x-=GRID_SIZE;
+        }
+        SDL_RenderPresent(renderer);
     return SDL_APP_CONTINUE;
 }
