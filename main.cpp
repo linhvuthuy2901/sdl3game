@@ -33,8 +33,14 @@ int w,h;
 
 vector <Object> body;
 
+Uint32 lastime=0;
+int timedelay=150;
+
+int length=3;
+
 enum Direction {LEFT,RIGHT,UP,DOWN};
 Direction direction=RIGHT;
+
 const int GRID_SIZE=40;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
@@ -58,7 +64,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
             SDL_Log("Error creating renderer: %s", SDL_GetError());
             return SDL_APP_FAILURE;
         }
+        for (int i=length-1;i>=0;i--)
+    {
         body.push_back({360,280,GRID_SIZE,GRID_SIZE});
+    }
+        
         return SDL_APP_CONTINUE;
 }
 
@@ -96,7 +106,10 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
                 {direction=RIGHT;}
                 break;
             }
-            default:break;
+            default:
+            {
+                break;
+            } 
         }
     }
     return SDL_APP_CONTINUE;  
@@ -116,27 +129,45 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         SDL_RenderLine(renderer, 0, y, 800, y);
     }
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-    SDL_FRect rect ={(float)body[0].x,(float)body[0].y,(float)body[0].w,(float)body[0].h};
-     SDL_RenderFillRect(renderer, &rect);
-    SDL_SetRenderDrawColorFloat(renderer, 0, 255, 0, 0);
-       
-       if(direction==UP)
+    Uint32 currentime=SDL_GetTicks();
+    if(currentime-lastime>=timedelay)
         {
-        body[0].y-=GRID_SIZE;
+        lastime=currentime;
+        for (int i=length-1;i>=0;i--)
+        {
+            if(i!=0)
+            body[i]=body[i-1];
         }
+        if(direction==UP)
+            {
+            body[0].y-=GRID_SIZE;
+            }
         if(direction==DOWN)
-        {
-        body[0].y+=GRID_SIZE;
-        }
+            {
+            body[0].y+=GRID_SIZE;
+            }
         if(direction==RIGHT)
-        {
-        body[0].x+=GRID_SIZE;
-        }
+            {
+            body[0].x+=GRID_SIZE;
+            }
         if(direction==LEFT)
-        {
-        body[0].x-=GRID_SIZE;
+            {
+            body[0].x-=GRID_SIZE;
+            }
         }
-        SDL_RenderPresent(renderer);
-    return SDL_APP_CONTINUE;
+        for (int i=length-1;i>=0;i--)
+        {
+            if(i==0)
+            {
+                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+            }
+            else
+            {
+                SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+            }
+             SDL_FRect rect1 ={(float)body[i].x,(float)body[i].y,(float)body[i].w,(float)body[i].h};
+             SDL_RenderFillRect(renderer, &rect1);
+        }
+            SDL_RenderPresent(renderer);
+        return SDL_APP_CONTINUE;
 }
