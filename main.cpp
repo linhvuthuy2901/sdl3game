@@ -169,5 +169,21 @@ SDL_AppResult SDL_AppIterate(void *appstate)
              SDL_RenderFillRect(renderer, &rect1);
         }
             SDL_RenderPresent(renderer);
+            if(body[0].x==-40&&direction==LEFT)
+            {
+                body[0].x=760;
+            }
+            if(body[0].y==-40&&direction==UP)
+            {
+                body[0].y=600;
+            }
+            if(body[0].x==800&&direction==RIGHT)
+            {
+                body[0].x=-40;
+            }
+            if(body[0].y==600&&direction==DOWN)
+            {
+                body[0].y=-40;
+            }
         return SDL_APP_CONTINUE;
 }
