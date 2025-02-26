@@ -12,24 +12,23 @@
 #include <sdl3/sdl_main.h>
 #include <vector>
 using namespace std;
+#include <ctime>
+#include <cstdlib>
 
 SDL_Window* window;
 SDL_Renderer* renderer;
 
-void SDL_AppQuit(void *appstate, SDL_AppResult result)
-{
-    SDL_DestroyRenderer(renderer);
-    renderer = NULL;
-    SDL_DestroyWindow(window);
-    window=NULL;
-    SDL_QuitSubSystem(SDL_INIT_VIDEO);
-}
+const int WINDOW_HEIGHT = 920;
+const int WINDOW_WIDTH= 720;
+
 
 typedef struct
 {
 int x,y;
 int w,h;
 }Object; 
+
+Object Food;
 
 vector <Object> body;
 
@@ -43,6 +42,34 @@ Direction direction=RIGHT;
 
 const int GRID_SIZE=40;
 
+int randomy()
+{
+    return (1+ rand()%(WINDOW_HEIGHT/GRID_SIZE))*GRID_SIZE;
+}
+
+int randomx()
+{
+    return (1+ rand()%(WINDOW_WIDTH/GRID_SIZE))*GRID_SIZE;
+}
+void food()
+{
+    Food.x=randomx();
+    Food.y=randomy();
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+    SDL_FRect rect3 ={(float)Food.x,(float)Food.y,(float)GRID_SIZE,(float)GRID_SIZE};
+    SDL_RenderFillRect(renderer, &rect3);
+}
+
+
+void SDL_AppQuit(void *appstate, SDL_AppResult result)
+{
+    SDL_DestroyRenderer(renderer);
+    renderer = NULL;
+    SDL_DestroyWindow(window);
+    window=NULL;
+    SDL_QuitSubSystem(SDL_INIT_VIDEO);
+}
+
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 {
         if(!SDL_Init(SDL_INIT_VIDEO))
@@ -50,7 +77,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
             SDL_Log("Error initializing SDL: %s", SDL_GetError());
             return SDL_APP_FAILURE;
         }
-        window = SDL_CreateWindow("Snake Game toi yeu",800,600,NULL);
+        window = SDL_CreateWindow("Snake Game toi yeu",WINDOW_WIDTH,WINDOW_HEIGHT,NULL);
    
         if(!window)
         {
@@ -68,8 +95,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
     {
         body.push_back({360,280,GRID_SIZE,GRID_SIZE});
     }
-        
-        return SDL_APP_CONTINUE;
+    srand(time(0 ));
+    return SDL_APP_CONTINUE;
 }
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
@@ -120,17 +147,31 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     SDL_SetRenderDrawColor(renderer,255, 182, 193, 255);
     SDL_RenderClear(renderer);
     SDL_SetRenderDrawColor(renderer,255, 105, 180, 0);
-    for (int x = 0 ; x < 800; x += GRID_SIZE)
+    for (int x = 0 ; x < WINDOW_WIDTH; x += GRID_SIZE)
     {
-        SDL_RenderLine(renderer, x, 0, x, 600);
+        SDL_RenderLine(renderer, x, 0, x, WINDOW_HEIGHT);
     }
-    for (int y = 0 ; y < 600 ; y += GRID_SIZE)
+    for (int y = 0 ; y < WINDOW_HEIGHT ; y += GRID_SIZE)
     {
-        SDL_RenderLine(renderer, 0, y, 800, y);
+        SDL_RenderLine(renderer, 0, y, WINDOW_WIDTH, y);
     }
-
+    
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+    
     Uint32 currentime=SDL_GetTicks();
-    if(currentime-lastime>=timedelay)
+    /*if(currentime>=50)
+    {
+            {
+                food();
+            }
+    }
+    if((direction==UP&&body[0].y-40==Food.x)||(direction==DOWN&&body[0].x==Food.y-40)||(direction==RIGHT&&body[0].x==Food.x-40)||(direction==LEFT&&body[0].x+40==Food.x))
+        {
+            food();
+            Uint32 nowtime=SDL_GetTicks();
+        }
+        */
+    if(currentime-lastime>=timedelay) 
         {
         lastime=currentime;
         for (int i=length-1;i>=0;i--)
@@ -140,22 +181,22 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         }
         if(direction==UP)
             {
-            body[0].y-=GRID_SIZE;
+            body[0].y -= GRID_SIZE;
             }
         if(direction==DOWN)
             {
-            body[0].y+=GRID_SIZE;
+            body[0].y += GRID_SIZE;
             }
-        if(direction==RIGHT)
+        if(direction == RIGHT)
             {
             body[0].x+=GRID_SIZE;
             }
-        if(direction==LEFT)
+        if(direction == LEFT)
             {
             body[0].x-=GRID_SIZE;
             }
         }
-        for (int i=length-1;i>=0;i--)
+        for (int i = length-1; i >= 0; i--)
         {
             if(i==0)
             {
@@ -169,21 +210,22 @@ SDL_AppResult SDL_AppIterate(void *appstate)
              SDL_RenderFillRect(renderer, &rect1);
         }
             SDL_RenderPresent(renderer);
-            if(body[0].x==-40&&direction==LEFT)
+            if(body[0].x==-GRID_SIZE&&direction==LEFT)
             {
-                body[0].x=760;
+                body[0].x=WINDOW_WIDTH-GRID_SIZE;
             }
-            if(body[0].y==-40&&direction==UP)
+            if(body[0].y==-GRID_SIZE&&direction==UP)
             {
-                body[0].y=600;
+                body[0].y=WINDOW_HEIGHT-GRID_SIZE;
             }
-            if(body[0].x==800&&direction==RIGHT)
+            if(body[0].x==WINDOW_WIDTH&&direction==RIGHT)
             {
-                body[0].x=-40;
+                body[0].x=0;
             }
-            if(body[0].y==600&&direction==DOWN)
+            if(body[0].y==WINDOW_HEIGHT&&direction==DOWN)
             {
-                body[0].y=-40;
+                body[0].y=0;
             }
+            
         return SDL_APP_CONTINUE;
 }
