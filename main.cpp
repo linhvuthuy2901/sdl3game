@@ -6,6 +6,7 @@
 #include "SDL3/SDL_video.h"
 #include "sdl3/SDL_events.h"
 #include "sdl3/SDL_render.h"
+#include <algorithm>
 #include <cstddef>
 #define SDL_MAIN_USE_CALLBACKS
 #include <sdl3/sdl.h>
@@ -18,8 +19,8 @@ using namespace std;
 SDL_Window* window;
 SDL_Renderer* renderer;
 
-const int WINDOW_HEIGHT = 920;
-const int WINDOW_WIDTH= 720;
+const int WINDOW_HEIGHT = 600;
+const int WINDOW_WIDTH= 800;
 
 
 typedef struct
@@ -198,17 +199,17 @@ SDL_AppResult SDL_AppIterate(void *appstate)
             }
         }
         if(currentime>=0)
-    {
+        {
             {
                 food();
-if (body[0].x == Food.x && body[0].y == Food.y)
+            if (body[0].x == Food.x && body[0].y == Food.y)
             {
                 touch();
                 length++;
                 body.push_back({body[length-2].x,body[length-2].y,GRID_SIZE,GRID_SIZE});
             }
             }
-    }
+         }
         for (int i = length-1; i >= 0; i--)
         {
             if(i==0)
@@ -239,5 +240,22 @@ if (body[0].x == Food.x && body[0].y == Food.y)
             {
                 body[0].y=0;
             }
+            if(currentime>timedelay*3)
+            {
+                for (int i=3;i<length;i++)
+               {
+                    if(body[0].x==body[i].x&&body[0].y==body[i].y)
+                    {
+                    body.erase(body.begin()+3,body.end());
+                    length=3;
+                    for(int i=0;i<3;i++)
+                        {
+                    body[i].x=360;
+                    body[i].y=280;
+                        }
+                    break;
+                    }
+                }
+            }            
         return SDL_APP_CONTINUE;
 }
