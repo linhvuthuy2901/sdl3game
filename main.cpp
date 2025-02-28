@@ -240,8 +240,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
             {
                 body[0].y=0;
             }
-            if(currentime>timedelay*3)
-            {
+            
                 for (int i=3;i<length;i++)
                {
                     if(body[0].x==body[i].x&&body[0].y==body[i].y)
@@ -253,9 +252,10 @@ SDL_AppResult SDL_AppIterate(void *appstate)
                     body[i].x=360;
                     body[i].y=280;
                         }
+                        direction=RIGHT;
                     break;
                     }
                 }
-            }            
+                 
         return SDL_APP_CONTINUE;
 }
