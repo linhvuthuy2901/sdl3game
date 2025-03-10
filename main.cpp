@@ -200,16 +200,21 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         }
         if(currentime>=0)
         {
-            {
-                food();
+            food();
             if (body[0].x == Food.x && body[0].y == Food.y)
             {
                 touch();
                 length++;
                 body.push_back({body[length-2].x,body[length-2].y,GRID_SIZE,GRID_SIZE});
             }
+            for (int i=1;i<length;i++)
+            {
+                if (body[i].x == Food.x && body[i].y == Food.y)
+                {
+                    touch();
+                }
             }
-         }
+        }
         for (int i = length-1; i >= 0; i--)
         {
             if(i==0)
@@ -241,20 +246,20 @@ SDL_AppResult SDL_AppIterate(void *appstate)
                 body[0].y=0;
             }
             
-                for (int i=3;i<length;i++)
+            for (int i=3;i<length;i++)
                {
-                    if(body[0].x==body[i].x&&body[0].y==body[i].y)
-                    {
-                    body.erase(body.begin()+3,body.end());
-                    length=3;
-                    for(int i=0;i<3;i++)
-                        {
+                if(body[0].x==body[i].x&&body[0].y==body[i].y)
+                {
+                body.erase(body.begin()+3,body.end());
+                length=3;
+                for(int i=0;i<3;i++)
+                {
                     body[i].x=360;
                     body[i].y=280;
-                        }
-                        direction=RIGHT;
-                    break;
-                    }
+                }
+                direction=RIGHT;
+                break;
+                }
                 }
                  
         return SDL_APP_CONTINUE;
