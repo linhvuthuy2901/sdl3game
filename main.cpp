@@ -62,29 +62,6 @@ int randomx() { return (rand() % (WINDOW_WIDTH / GRID_SIZE)) * GRID_SIZE; }
 void food(); 
 
 void restartGame() {
-  SDL_SetRenderDrawColor(renderer, 255, 182, 193, 255);
-  SDL_RenderClear(renderer);
-  
-  SDL_SetRenderDrawColor(renderer, 255, 105, 180, 0);
-  for (int x = 0; x < WINDOW_WIDTH; x += GRID_SIZE) {
-    SDL_RenderLine(renderer, x, 0, x, WINDOW_HEIGHT);
-  }
-  for (int y = 0; y < WINDOW_HEIGHT; y += GRID_SIZE) {
-    SDL_RenderLine(renderer, 0, y, WINDOW_WIDTH, y);
-  }
-  
-  for (int i = length - 1; i >= 0; i--) {
-    if (i == 0) {
-      SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-    } else {
-      SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    }
-    SDL_FRect rect1 = {(float)body[i].x, (float)body[i].y, (float)body[i].w, (float)body[i].h};
-    SDL_RenderFillRect(renderer, &rect1);
-  }
-  
-  food(); 
-  
   if (tex) {
     SDL_RenderTexture(renderer, tex, &srcRect, &destRect);
     SDL_Log("Rendering restart texture at %.0f, %.0f", destRect.x, destRect.y);
