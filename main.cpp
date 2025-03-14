@@ -30,7 +30,9 @@ SDL_FRect destRect = {400.0f, 300.0f, 200.0f, 100.0f};
 SDL_FRect srcRect = {0.0f, 0.0f, 0.0f, 0.0f};
 
 int increasetime = 30;
+int directionwall=false;
 int consttime = 150;
+int nowtime=0;
 
 typedef struct {
   int x, y;
@@ -44,6 +46,7 @@ bool click = false;
 Object Food;
 int countf = 0;
 vector<Object> body;
+Object wall;
 
 Uint32 lastime = 0;
 Uint32 lastimeeatfood = 0;
@@ -59,7 +62,7 @@ const int GRID_SIZE = 40;
 int randomy() { return (rand() % (WINDOW_HEIGHT / GRID_SIZE)) * GRID_SIZE; }
 int randomx() { return (rand() % (WINDOW_WIDTH / GRID_SIZE)) * GRID_SIZE; }
 
-void food(); 
+void food();
 
 void restartGame() {
   if (tex) {
@@ -73,7 +76,15 @@ void restartGame() {
 
 void food() {
   SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-  SDL_FRect rect3 = {(float)Food.x, (float)Food.y, (float)GRID_SIZE, (float)GRID_SIZE};
+  SDL_FRect rect3 = {(float)Food.x, (float)Food.y, (float)GRID_SIZE,
+                     (float)GRID_SIZE};
+  SDL_RenderFillRect(renderer, &rect3);
+}
+
+void drawwall() {
+  SDL_SetRenderDrawColor(renderer, 139, 69, 19, 255);
+  SDL_FRect rect3 = {(float)wall.x, (float)wall.y, (float)GRID_SIZE,
+                     (float)GRID_SIZE};
   SDL_RenderFillRect(renderer, &rect3);
 }
 
@@ -102,7 +113,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SDL_Log("Error initializing SDL: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
-  window = SDL_CreateWindow("Snake Game toi yeu", WINDOW_WIDTH, WINDOW_HEIGHT, NULL);
+  window =
+      SDL_CreateWindow("Snake Game toi yeu", WINDOW_WIDTH, WINDOW_HEIGHT, NULL);
   if (!window) {
     SDL_Log("Error creating window: %s", SDL_GetError());
     return SDL_APP_FAILURE;
@@ -120,7 +132,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
   srcRect.w = (float)bmp->w;
   srcRect.h = (float)bmp->h;
   SDL_Log("Loaded restart.bmp: %dx%d", bmp->w, bmp->h);
-  
+
   tex = SDL_CreateTextureFromSurface(renderer, bmp);
   if (tex == nullptr) {
     SDL_Log("Error creating texture: %s", SDL_GetError());
@@ -132,6 +144,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
   srand(time(0));
   Food.x = randomx();
   Food.y = randomy();
+  wall.x = randomx();
+  wall.y = randomy();
   return SDL_APP_CONTINUE;
 }
 
@@ -189,7 +203,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 SDL_AppResult SDL_AppIterate(void *appstate) {
   SDL_SetRenderDrawColor(renderer, 255, 182, 193, 255);
   SDL_RenderClear(renderer);
-  
+
   SDL_SetRenderDrawColor(renderer, 255, 105, 180, 0);
   for (int x = 0; x < WINDOW_WIDTH; x += GRID_SIZE) {
     SDL_RenderLine(renderer, x, 0, x, WINDOW_HEIGHT);
@@ -222,11 +236,18 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     }
 
     food();
+
+    if (wall.x == Food.x && wall.y == Food.y) {
+      wall.x = randomx();
+      wall.y = randomy();
+    }
+    
     if (body[0].x == Food.x && body[0].y == Food.y) {
       touch();
       countf++;
       length++;
-      body.push_back({body[length - 2].x, body[length - 2].y, GRID_SIZE, GRID_SIZE});
+      body.push_back(
+          {body[length - 2].x, body[length - 2].y, GRID_SIZE, GRID_SIZE});
     }
     for (int i = 1; i < length; i++) {
       if (body[i].x == Food.x && body[i].y == Food.y) {
@@ -244,11 +265,12 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
       } else {
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
       }
-      SDL_FRect rect1 = {(float)body[i].x, (float)body[i].y, (float)body[i].w, (float)body[i].h};
+      SDL_FRect rect1 = {(float)body[i].x, (float)body[i].y, (float)body[i].w,
+                         (float)body[i].h};
       SDL_RenderFillRect(renderer, &rect1);
     }
 
-    if (((currentime - lastimeeatfood >= 5000) && mark == true) || 
+    if (((currentime - lastimeeatfood >= 5000) && mark == true) ||
         (currentime < 5000) && mark == true) {
       lastimeeatfood = currentime;
       for (int i = length - 1; i > 0; i--) {
@@ -280,7 +302,30 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     if (body[0].y == WINDOW_HEIGHT && direction == DOWN) {
       body[0].y = 0;
     }
-
+    drawwall();
+    if(currentime-nowtime>=100)
+    {
+      nowtime=currentime;
+      if(directionwall==false)
+      {
+        wall.x-=GRID_SIZE;  
+      }
+      if(wall.x==-GRID_SIZE)
+      {
+        directionwall=true;
+      }
+      if(directionwall==true)
+      {
+        wall.x+=GRID_SIZE;  
+      }
+      if(wall.x==WINDOW_WIDTH)
+      {
+        directionwall=false;
+      }
+    }
+    if (body[0].x == wall.x && body[0].y == wall.y) {
+      gameend = true;
+    }
     for (int i = 3; i < length; i++) {
       if (body[0].x == body[i].x && body[0].y == body[i].y) {
         gameend = true;
