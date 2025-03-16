@@ -252,11 +252,6 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 
     food();
 
-    if (wall.x == Food.x && wall.y == Food.y) {
-      Food.x = randomx();
-      Food.y = randomy();
-    }
-    
     if (body[0].x == Food.x && body[0].y == Food.y) {
       touch();
       countf++;
