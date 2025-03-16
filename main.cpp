@@ -22,6 +22,8 @@ SDL_Window *window;
 SDL_Renderer *renderer;
 SDL_Texture *tex;
 SDL_Surface *bmp;
+SDL_Texture *tex2;
+SDL_Surface *bmp2;
 
 const int WINDOW_HEIGHT = 800;
 const int WINDOW_WIDTH = 1000;
@@ -138,6 +140,16 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SDL_Log("Error creating texture: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
+   bmp2 = SDL_LoadBMP("background.bmp");
+  if (bmp2 == nullptr) {
+    SDL_Log("Error loading restart.bmp2: %s", SDL_GetError());
+    return SDL_APP_FAILURE;
+  }
+  tex2 = SDL_CreateTextureFromSurface(renderer, bmp2);
+  if (tex2 == nullptr) {
+    SDL_Log("Error creating texture: %s", SDL_GetError());
+    return SDL_APP_FAILURE;
+  }
   for (int i = length - 1; i >= 0; i--) {
     body.push_back({360, 280, GRID_SIZE, GRID_SIZE});
   }
@@ -146,6 +158,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
   Food.y = randomy();
   wall.x = randomx();
   wall.y = randomy();
+  if(wall.y==280)
+  {
+    wall.x=randomx();
+  }
   return SDL_APP_CONTINUE;
 }
 
@@ -201,9 +217,8 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 }
 
 SDL_AppResult SDL_AppIterate(void *appstate) {
-  SDL_SetRenderDrawColor(renderer, 255, 182, 193, 255);
   SDL_RenderClear(renderer);
-
+  SDL_RenderTexture(renderer, tex2, NULL, NULL);
   SDL_SetRenderDrawColor(renderer, 255, 105, 180, 0);
   for (int x = 0; x < WINDOW_WIDTH; x += GRID_SIZE) {
     SDL_RenderLine(renderer, x, 0, x, WINDOW_HEIGHT);
@@ -238,8 +253,8 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     food();
 
     if (wall.x == Food.x && wall.y == Food.y) {
-      wall.x = randomx();
-      wall.y = randomy();
+      Food.x = randomx();
+      Food.y = randomy();
     }
     
     if (body[0].x == Food.x && body[0].y == Food.y) {
@@ -278,7 +293,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
       }
       if (direction == UP && body[0].y < WINDOW_HEIGHT - 2 * GRID_SIZE) {
         body[0].y -= 2 * GRID_SIZE;
-      } else if (direction == DOWN && body[0].y > 3 * GRID_SIZE) {
+      } else if (direction == DOWN && body[0].y > 4 * GRID_SIZE) {
         body[0].y += 2 * GRID_SIZE;
       } else if (direction == RIGHT && body[0].x < WINDOW_WIDTH - GRID_SIZE) {
         body[0].x += 2 * GRID_SIZE;
@@ -343,6 +358,8 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
         body[i].x = 360;
         body[i].y = 280;
       }
+      wall.x==randomx();
+      wall.y=randomy();
       direction = RIGHT;
       countf = 0;
       gameend = false;
