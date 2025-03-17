@@ -82,16 +82,6 @@ void restartGame() {
   SDL_RenderPresent(renderer);
 }
 
-void starter() {
-  if (tex3) {
-    SDL_RenderTexture(renderer, tex3, &srcRect, &destRect);
-    SDL_Log("Rendering restart texture at %.0f, %.0f", destRect.x, destRect.y);
-  } else {
-    SDL_Log("Texture is null!");
-  }
-  SDL_RenderPresent(renderer);
-}
-
 void food() {
   SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
   SDL_FRect rect3 = {(float)Food.x, (float)Food.y, (float)GRID_SIZE,
