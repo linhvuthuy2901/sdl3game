@@ -242,8 +242,8 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
   if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN && (start)) {
     int mouseX = event->button.x;
     int mouseY = event->button.y;
-    if (mouseX >= destRect2.x && mouseX <= destRect2.x + destRect2.w &&
-        mouseY >= destRect2.y && mouseY <= destRect2.y + destRect2.h) {
+    if (mouseX >= destRect.x && mouseX <= destRect.x + destRect.w &&
+        mouseY >= destRect.y && mouseY <= destRect.y + destRect.h) {
           start=false;
           started=true;
       SDL_Log("Click to continue %d, %d", mouseX, mouseY);
