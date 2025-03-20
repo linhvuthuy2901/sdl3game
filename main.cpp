@@ -1,3 +1,6 @@
+#include "sdl3/SDL_init.h"
+#include "sdl3/SDL_log.h"
+#include "sdl3/SDL_oldnames.h"
 #include "sdl3/SDL_rect.h"
 #include "sdl3/SDL_render.h"
 #include "sdl3/SDL_surface.h"
@@ -29,6 +32,10 @@ SDL_Texture *tex6;
 SDL_Surface *bmp6;
 SDL_Texture *tex7;
 SDL_Surface *bmp7;
+
+SDL_Surface *texsurface;
+SDL_Texture *textTexture;
+const char*text="Your score : ";
 
 const int WINDOW_HEIGHT = 800;
 const int WINDOW_WIDTH = 1000;
@@ -136,6 +143,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SDL_Log("Error creating renderer: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
+  //RESTART
   bmp = SDL_LoadBMP("restart.bmp");
   if (bmp == nullptr) {
     SDL_Log("Error loading restart.bmp: %s", SDL_GetError());
@@ -144,12 +152,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
   srcRect.w = (float)bmp->w;
   srcRect.h = (float)bmp->h;
   SDL_Log("Loaded restart.bmp: %dx%d", bmp->w, bmp->h);
-
   tex = SDL_CreateTextureFromSurface(renderer, bmp);
   if (tex == nullptr) {
     SDL_Log("Error creating texture: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
+  //background sau khi bam start
   bmp2 = SDL_LoadBMP("backgroundsau.bmp");
   if (bmp2 == nullptr) {
     SDL_Log("Error loading restart.bmp2: %s", SDL_GetError());
@@ -160,6 +168,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SDL_Log("Error creating texture: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
+  //START BUTTON
   bmp3 = SDL_LoadBMP("batdau.bmp");
   if (bmp3 == nullptr) {
     SDL_Log("Error loading restart.bmp2: %s", SDL_GetError());
@@ -170,17 +179,20 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SDL_Log("Error creating texture: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
-  bmp4 = SDL_LoadBMP("head.bmp"); //////////ĐẦU RẮN
+  //ĐỒ HOẠ ĐẦU RẮN
+  bmp4 = SDL_LoadBMP("head.bmp");
   if (bmp4 == nullptr) {
     SDL_Log("Error loading restart.bmp2: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
+
   tex4 = SDL_CreateTextureFromSurface(renderer, bmp4);
   if (tex4 == nullptr) {
     SDL_Log("Error creating texture: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
-  bmp5 = SDL_LoadBMP("body.bmp"); ////////THÂN RẮN
+  //ĐỒ HOẠ THÂN RẮN
+  bmp5 = SDL_LoadBMP("body.bmp");
   if (bmp5 == nullptr) {
     SDL_Log("Error loading restart.bmp2: %s", SDL_GetError());
     return SDL_APP_FAILURE;
@@ -190,6 +202,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SDL_Log("Error creating texture: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
+  //ĐỒ HOẠ THỨC ĂN
   bmp6 = SDL_LoadBMP("food.bmp");
   if (bmp6 == nullptr) {
     SDL_Log("Error loading restart.bmp2: %s", SDL_GetError());
@@ -200,6 +213,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SDL_Log("Error creating texture: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
+  //BACKGROUND TRƯỚC KHI BẤM START
   bmp7 = SDL_LoadBMP("backgroundbandau.bmp");
   if (bmp7 == nullptr) {
     SDL_Log("Error loading restart.bmp2: %s", SDL_GetError());
@@ -210,9 +224,26 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SDL_Log("Error creating texture: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
+
+//Khoi tao TTF
+  if(!TTF_Init())
+  {
+    SDL_Log("Can not down ttf:%s",SDL_GetError());
+    return SDL_APP_FAILURE;
+  }
+  TTF_Font* font =TTF_OpenFont("font_pixel.ttf", 24);
+  if(!font)
+  {
+    SDL_Log("Can not down font:%s",SDL_GetError());
+    return SDL_APP_FAILURE;
+  }
+  SDL_Color textColor={255,255,255,255};
+  texsurface=TTF_RenderText_Solid(font, text, strlen(text), textColor);
+  textTexture=SDL_CreateTextureFromSurface(renderer, texsurface);
   for (int i = length - 1; i >= 0; i--) {
     body.push_back({360, 280, GRID_SIZE, GRID_SIZE});
   }
+  
   srand(time(0));
   Food.x = randomx();
   Food.y = randomy();
@@ -297,6 +328,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 }
 
 SDL_AppResult SDL_AppIterate(void *appstate) {
+  
   SDL_RenderClear(renderer);
   if (started == false) {
     SDL_RenderTexture(renderer, tex7, NULL, NULL);
@@ -305,8 +337,15 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   }
 
   if (started == true) {
+    SDL_FRect dst_rect;
+    SDL_RenderTexture(renderer, textTexture, NULL, &dst_rect);
     SDL_RenderTexture(renderer, tex2, NULL, NULL);
-
+    
+    dst_rect.x = ((float) (90)) ;
+    dst_rect.y = (float) (100);
+    dst_rect.w = (float) 200;
+    dst_rect.h = (float) 30;
+  SDL_RenderTexture(renderer, textTexture, NULL, &dst_rect);
     if (!gameend) {
 
       Uint32 currentime = SDL_GetTicks();
