@@ -499,20 +499,20 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
         }
       }
 
-      if (((currentime - lastimeeatfood >= 5000) && mark == true) ||
-          (currentime < 5000) && mark == true) {
+      if (((currentime - lastimeeatfood >= 7000) && mark == true) ||
+          (currentime < 7000) && mark == true) {
         lastimeeatfood = currentime;
         for (int i = length - 1; i > 0; i--) {
           body[i] = body[i - 1];
         }
-        if (direction == UP && body[0].y < WINDOW_HEIGHT - 2 * GRID_SIZE) {
-          body[0].y -= 2 * GRID_SIZE;
-        } else if (direction == DOWN && body[0].y > 4 * GRID_SIZE) {
-          body[0].y += 2 * GRID_SIZE;
-        } else if (direction == RIGHT && body[0].x < WINDOW_WIDTH - GRID_SIZE) {
-          body[0].x += 2 * GRID_SIZE;
-        } else if (direction == LEFT && body[0].x > 2 * GRID_SIZE) {
-          body[0].x -= 2 * GRID_SIZE;
+        if (direction == UP && body[0].y < WINDOW_HEIGHT - 3* GRID_SIZE) {
+          body[0].y -= 3 * GRID_SIZE;
+        } else if (direction == DOWN && body[0].y > 3 * GRID_SIZE) {
+          body[0].y += 3 * GRID_SIZE;
+        } else if (direction == RIGHT && body[0].x < WINDOW_WIDTH - 2*GRID_SIZE) {
+          body[0].x += 3 * GRID_SIZE;
+        } else if (direction == LEFT && body[0].x > 3* GRID_SIZE) {
+          body[0].x -= 3 * GRID_SIZE;
         }
         mark = false;
       } else if ((currentime - lastimeeatfood < 5000) && mark == true) {
