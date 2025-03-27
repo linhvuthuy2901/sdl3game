@@ -17,11 +17,11 @@ using namespace std;
 #include <ctime>
 
 const int GRID_SIZE = 40;
-
-float wallx[] = {GRID_SIZE * 8, GRID_SIZE * 7, GRID_SIZE*2};
-float wally[] = {GRID_SIZE * 10, GRID_SIZE * 7, GRID_SIZE * 4};
-float wallw[] = {GRID_SIZE * 1, GRID_SIZE*10, GRID_SIZE * 1};
-float wallh[] = {GRID_SIZE * 5, GRID_SIZE , GRID_SIZE * 4};
+const int WALLSIZE=5;
+float wallx[] = {GRID_SIZE * 8, GRID_SIZE * 7, GRID_SIZE*2,GRID_SIZE*18,GRID_SIZE*16};
+float wally[] = {GRID_SIZE * 13, GRID_SIZE * 7, GRID_SIZE * 4,GRID_SIZE*2,GRID_SIZE*8};
+float wallw[] = {GRID_SIZE * 1, GRID_SIZE*10, GRID_SIZE * 1,GRID_SIZE,GRID_SIZE};
+float wallh[] = {GRID_SIZE * 5, GRID_SIZE , GRID_SIZE * 4,GRID_SIZE*3,GRID_SIZE*7};
 
 SDL_Window *window;
 SDL_Renderer *renderer;
@@ -43,6 +43,8 @@ SDL_Texture *tex8;
 SDL_Surface *bmp8;
 SDL_Texture *tex9;
 SDL_Surface *bmp9;
+SDL_Texture *tex10;
+SDL_Surface *bmp10;
 
 SDL_Surface *texsurface;
 SDL_Texture *textTexture;
@@ -59,6 +61,10 @@ int increasetime = 30;
 int directionwall = false;
 int consttime = 150;
 int nowtime = 0;
+
+//TOẠ ĐỘ CỦA PHÙ THUỶ
+int toadox;
+int toadoy;
 
 typedef struct {
   int x, y;
@@ -126,6 +132,16 @@ void drawwallDoNotRun() {
   SDL_RenderTexture(renderer, tex9, NULL, &rectwall2);
   SDL_FRect rectwall3 = {wallx[2], wally[2], wallw[2], wallh[2]};
   SDL_RenderTexture(renderer, tex9, NULL, &rectwall3);
+  SDL_FRect rectwall4 = {wallx[3], wally[3], wallw[3], wallh[3]};
+  SDL_RenderTexture(renderer, tex9, NULL, &rectwall4);
+  SDL_FRect rectwall5 = {wallx[4], wally[4], wallw[4], wallh[4]};
+  SDL_RenderTexture(renderer, tex9, NULL, &rectwall5);
+}
+
+void drawphuthuy()
+{
+  SDL_FRect rectphuthuy = {toadox*1.0f, toadoy*1.0f, GRID_SIZE*3, GRID_SIZE*3};
+  SDL_RenderTexture(renderer, tex10, NULL, &rectphuthuy);
 }
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result) {
@@ -294,6 +310,18 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     return SDL_APP_FAILURE;
   }
 
+// VẼ PHÙ THUỶ
+  bmp10 = SDL_LoadBMP("phuthuy.bmp");
+  if (bmp10 == nullptr) {
+    SDL_Log("Error loading restart.bmp2: %s", SDL_GetError());
+    return SDL_APP_FAILURE;
+  }
+  tex10 = SDL_CreateTextureFromSurface(renderer, bmp10);
+  if (tex10 == nullptr) {
+    SDL_Log("Error creating texture: %s", SDL_GetError());
+    return SDL_APP_FAILURE;
+  }
+
   // Khoi tao TTF
   if (!TTF_Init()) {
     SDL_Log("Can not down ttf:%s", SDL_GetError());
@@ -312,6 +340,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
   }
 
   srand(time(0));
+  toadox=randomx();
+  toadoy=randomy();
   Food.x = randomx();
   Food.y = randomy();
   wall.x = randomx();
@@ -421,7 +451,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     if (vavaotuong == false) {
       drawwallDoNotRun();
     }
-
+  drawphuthuy();
     dst_rect.x = ((float)(90));
     dst_rect.y = (float)(100);
     dst_rect.w = (float)200;
@@ -452,6 +482,14 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
       }
 
       food();
+      for (int i=0;i<4;i++)
+      {
+        if(Food.x==wallx[i]&&Food.y==wally[i])
+        {
+          Food.x=randomx();
+          Food.y=randomy();
+        }
+      }
       if (body[0].x)
         if (body[0].x == Food.x && body[0].y == Food.y) {
           touch();
@@ -491,13 +529,16 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
         countf2 = 1;
       }
       //DRAW TƯỜNG CỐ ĐỊNH
-      for (int i = 0; i < 3; i++) {
+      for (int i = 0; i < WALLSIZE; i++) {
         if (body[0].x >= wallx[i] && body[0].x < wallx[i] + wallw[i] &&
             body[0].y >= wally[i] && body[0].y < wally[i] + wallh[i]) {
           gameend = true;
           vavaotuong = true;
         }
+
       }
+
+      
 
       if (((currentime - lastimeeatfood >= 7000) && mark == true) ||
           (currentime < 7000) && mark == true) {
@@ -532,6 +573,14 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
         body[0].y = 0;
       }
       drawwall();
+      for (int i=0;i<WALLSIZE;i++)
+      {
+        if(Food.x==wallx[i]&&Food.y==wally[i])
+        {
+          Food.x=randomx();
+          Food.y=randomy();
+        }
+      }
       if (currentime - nowtime >= 69) {
         nowtime = currentime;
         if (directionwall == false) {
@@ -549,6 +598,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
       }
       if (body[0].x == wall.x && body[0].y == wall.y) {
         gameend = true;
+        vavaotuong=true;
       }
       for (int i = 3; i < length; i++) {
         if (body[0].x == body[i].x && body[0].y == body[i].y) {
