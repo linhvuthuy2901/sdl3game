@@ -16,6 +16,13 @@ using namespace std;
 #include <cstdlib>
 #include <ctime>
 
+const int GRID_SIZE = 40;
+
+float wallx[] = {GRID_SIZE * 8, GRID_SIZE * 7, GRID_SIZE*2};
+float wally[] = {GRID_SIZE * 10, GRID_SIZE * 7, GRID_SIZE * 4};
+float wallw[] = {GRID_SIZE * 1, GRID_SIZE*10, GRID_SIZE * 1};
+float wallh[] = {GRID_SIZE * 5, GRID_SIZE , GRID_SIZE * 4};
+
 SDL_Window *window;
 SDL_Renderer *renderer;
 SDL_Texture *tex;
@@ -32,15 +39,17 @@ SDL_Texture *tex6;
 SDL_Surface *bmp6;
 SDL_Texture *tex7;
 SDL_Surface *bmp7;
+SDL_Texture *tex8;
+SDL_Surface *bmp8;
+SDL_Texture *tex9;
+SDL_Surface *bmp9;
 
 SDL_Surface *texsurface;
 SDL_Texture *textTexture;
-const char*text="Your score : ";
+const char *text = "Your score : ";
 
 const int WINDOW_HEIGHT = 800;
 const int WINDOW_WIDTH = 1000;
-
-const int GRID_SIZE = 40;
 
 SDL_FRect destRect = {310.0f, 450.0f, 370.0f, 300.0f}; /// RESTART
 SDL_FRect srcRect = {0.0f, 0.0f, 0.0f, 0.0f};
@@ -61,12 +70,14 @@ bool gameend = false;
 bool click = false;
 bool start = true;
 bool started = false;
+bool vavaotuong = false;
 
 Object Food;
 int countf = 0;
 int countf2 = 1;
 vector<Object> body;
 Object wall;
+Object wallDoNotRun;
 
 Uint32 lastime = 0;
 Uint32 lastimeeatfood = 0;
@@ -104,7 +115,17 @@ void drawwall() {
   SDL_SetRenderDrawColor(renderer, 139, 69, 19, 255);
   SDL_FRect rect3 = {(float)wall.x, (float)wall.y, (float)GRID_SIZE,
                      (float)GRID_SIZE};
-  SDL_RenderFillRect(renderer, &rect3);
+  SDL_RenderTexture(renderer, tex8, NULL, &rect3);
+}
+
+void drawwallDoNotRun() {
+  SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+  SDL_FRect rectwall1 = {wallx[0], wally[0], wallw[0], wallh[0]};
+  SDL_RenderTexture(renderer, tex9, NULL, &rectwall1);
+  SDL_FRect rectwall2 = {wallx[1], wally[1], wallw[1], wallh[1]};
+  SDL_RenderTexture(renderer, tex9, NULL, &rectwall2);
+  SDL_FRect rectwall3 = {wallx[2], wally[2], wallw[2], wallh[2]};
+  SDL_RenderTexture(renderer, tex9, NULL, &rectwall3);
 }
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result) {
@@ -115,11 +136,36 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result) {
   SDL_QuitSubSystem(SDL_INIT_VIDEO);
   SDL_DestroySurface(bmp);
   SDL_DestroyTexture(tex);
+  SDL_DestroySurface(bmp2);
+  SDL_DestroyTexture(tex2);
+  SDL_DestroySurface(bmp3);
+  SDL_DestroyTexture(tex3);
+  SDL_DestroySurface(bmp4);
+  SDL_DestroyTexture(tex4);
+  SDL_DestroySurface(bmp5);
+  SDL_DestroyTexture(tex5);
+  SDL_DestroySurface(bmp6);
+  SDL_DestroyTexture(tex6);
+  SDL_DestroySurface(bmp7);
+  SDL_DestroyTexture(tex7);
+  SDL_DestroySurface(bmp8);
+  SDL_DestroyTexture(tex8);
 }
 
 void random2() {
   Food.x = randomx();
   Food.y = randomy();
+  for (int i=0;i<3;i++)
+  {
+    if(Food.x==wallx[i])
+    {
+      Food.x=randomx();
+    }
+    if(Food.y==wally[i])
+    {
+      Food.y=randomy();
+    }
+  }
 }
 
 void touch() {
@@ -143,7 +189,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SDL_Log("Error creating renderer: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
-  //RESTART
+  // RESTART
   bmp = SDL_LoadBMP("restart.bmp");
   if (bmp == nullptr) {
     SDL_Log("Error loading restart.bmp: %s", SDL_GetError());
@@ -157,7 +203,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SDL_Log("Error creating texture: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
-  //background sau khi bam start
+  // background sau khi bam start
   bmp2 = SDL_LoadBMP("backgroundsau.bmp");
   if (bmp2 == nullptr) {
     SDL_Log("Error loading restart.bmp2: %s", SDL_GetError());
@@ -168,7 +214,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SDL_Log("Error creating texture: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
-  //START BUTTON
+  // START BUTTON
   bmp3 = SDL_LoadBMP("batdau.bmp");
   if (bmp3 == nullptr) {
     SDL_Log("Error loading restart.bmp2: %s", SDL_GetError());
@@ -179,7 +225,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SDL_Log("Error creating texture: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
-  //ĐỒ HOẠ ĐẦU RẮN
+  // ĐỒ HOẠ ĐẦU RẮN
   bmp4 = SDL_LoadBMP("head.bmp");
   if (bmp4 == nullptr) {
     SDL_Log("Error loading restart.bmp2: %s", SDL_GetError());
@@ -191,7 +237,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SDL_Log("Error creating texture: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
-  //ĐỒ HOẠ THÂN RẮN
+  // ĐỒ HOẠ THÂN RẮN
   bmp5 = SDL_LoadBMP("body.bmp");
   if (bmp5 == nullptr) {
     SDL_Log("Error loading restart.bmp2: %s", SDL_GetError());
@@ -202,7 +248,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SDL_Log("Error creating texture: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
-  //ĐỒ HOẠ THỨC ĂN
+  // ĐỒ HOẠ THỨC ĂN
   bmp6 = SDL_LoadBMP("food.bmp");
   if (bmp6 == nullptr) {
     SDL_Log("Error loading restart.bmp2: %s", SDL_GetError());
@@ -213,7 +259,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SDL_Log("Error creating texture: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
-  //BACKGROUND TRƯỚC KHI BẤM START
+  // BACKGROUND TRƯỚC KHI BẤM START
   bmp7 = SDL_LoadBMP("backgroundbandau.bmp");
   if (bmp7 == nullptr) {
     SDL_Log("Error loading restart.bmp2: %s", SDL_GetError());
@@ -224,33 +270,65 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SDL_Log("Error creating texture: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
+  // WALL
+  bmp8 = SDL_LoadBMP("wall.bmp");
+  if (bmp8 == nullptr) {
+    SDL_Log("Error loading restart.bmp2: %s", SDL_GetError());
+    return SDL_APP_FAILURE;
+  }
+  tex8 = SDL_CreateTextureFromSurface(renderer, bmp8);
+  if (tex8 == nullptr) {
+    SDL_Log("Error creating texture: %s", SDL_GetError());
+    return SDL_APP_FAILURE;
+  }
 
-//Khoi tao TTF
-  if(!TTF_Init())
-  {
-    SDL_Log("Can not down ttf:%s",SDL_GetError());
+// WALLCODINH
+  bmp9 = SDL_LoadBMP("wallcodinh.bmp");
+  if (bmp9 == nullptr) {
+    SDL_Log("Error loading restart.bmp2: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
-  TTF_Font* font =TTF_OpenFont("font_pixel.ttf", 24);
-  if(!font)
-  {
-    SDL_Log("Can not down font:%s",SDL_GetError());
+  tex9 = SDL_CreateTextureFromSurface(renderer, bmp8);
+  if (tex9 == nullptr) {
+    SDL_Log("Error creating texture: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
-  SDL_Color textColor={255,255,255,255};
-  texsurface=TTF_RenderText_Solid(font, text, strlen(text), textColor);
-  textTexture=SDL_CreateTextureFromSurface(renderer, texsurface);
+
+  // Khoi tao TTF
+  if (!TTF_Init()) {
+    SDL_Log("Can not down ttf:%s", SDL_GetError());
+    return SDL_APP_FAILURE;
+  }
+  TTF_Font *font = TTF_OpenFont("font_pixel.ttf", 24);
+  if (!font) {
+    SDL_Log("Can not down font:%s", SDL_GetError());
+    return SDL_APP_FAILURE;
+  }
+  SDL_Color textColor = {255, 255, 255, 255};
+  texsurface = TTF_RenderText_Solid(font, text, strlen(text), textColor);
+  textTexture = SDL_CreateTextureFromSurface(renderer, texsurface);
   for (int i = length - 1; i >= 0; i--) {
-    body.push_back({360, 280, GRID_SIZE, GRID_SIZE});
+    body.push_back({40, 40, GRID_SIZE, GRID_SIZE});
   }
-  
+
   srand(time(0));
   Food.x = randomx();
   Food.y = randomy();
   wall.x = randomx();
   wall.y = randomy();
-  if (wall.y == 280) {
+  if (wall.y == 40) {
     wall.y = randomy();
+  }
+  for (int i=0;i<3;i++)
+  {
+    if(Food.x==wallx[i])
+    {
+      Food.x=randomx();
+    }
+    if(Food.y==wally[i])
+    {
+      Food.y=randomy();
+    }
   }
   return SDL_APP_CONTINUE;
 }
@@ -328,7 +406,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 }
 
 SDL_AppResult SDL_AppIterate(void *appstate) {
-  
+
   SDL_RenderClear(renderer);
   if (started == false) {
     SDL_RenderTexture(renderer, tex7, NULL, NULL);
@@ -340,12 +418,15 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     SDL_FRect dst_rect;
     SDL_RenderTexture(renderer, textTexture, NULL, &dst_rect);
     SDL_RenderTexture(renderer, tex2, NULL, NULL);
-    
-    dst_rect.x = ((float) (90)) ;
-    dst_rect.y = (float) (100);
-    dst_rect.w = (float) 200;
-    dst_rect.h = (float) 30;
-  SDL_RenderTexture(renderer, textTexture, NULL, &dst_rect);
+    if (vavaotuong == false) {
+      drawwallDoNotRun();
+    }
+
+    dst_rect.x = ((float)(90));
+    dst_rect.y = (float)(100);
+    dst_rect.w = (float)200;
+    dst_rect.h = (float)30;
+    SDL_RenderTexture(renderer, textTexture, NULL, &dst_rect);
     if (!gameend) {
 
       Uint32 currentime = SDL_GetTicks();
@@ -371,15 +452,15 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
       }
 
       food();
-
-      if (body[0].x == Food.x && body[0].y == Food.y) {
-        touch();
-        countf++;
-        length++;
-        countf2++;
-        body.push_back(
-            {body[length - 2].x, body[length - 2].y, GRID_SIZE, GRID_SIZE});
-      }
+      if (body[0].x)
+        if (body[0].x == Food.x && body[0].y == Food.y) {
+          touch();
+          countf++;
+          length++;
+          countf2++;
+          body.push_back(
+              {body[length - 2].x, body[length - 2].y, GRID_SIZE, GRID_SIZE});
+        }
       for (int i = 1; i < length; i++) {
         if (body[i].x == Food.x && body[i].y == Food.y) {
           touch();
@@ -408,6 +489,14 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
           wall.y = randomy();
         }
         countf2 = 1;
+      }
+      //DRAW TƯỜNG CỐ ĐỊNH
+      for (int i = 0; i < 3; i++) {
+        if (body[0].x >= wallx[i] && body[0].x < wallx[i] + wallw[i] &&
+            body[0].y >= wally[i] && body[0].y < wally[i] + wallh[i]) {
+          gameend = true;
+          vavaotuong = true;
+        }
       }
 
       if (((currentime - lastimeeatfood >= 5000) && mark == true) ||
@@ -443,7 +532,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
         body[0].y = 0;
       }
       drawwall();
-      if (currentime - nowtime >= 100) {
+      if (currentime - nowtime >= 69) {
         nowtime = currentime;
         if (directionwall == false) {
           wall.x -= GRID_SIZE;
@@ -475,8 +564,8 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
         body.erase(body.begin() + 3, body.end());
         length = 3;
         for (int i = 0; i < 3; i++) {
-          body[i].x = 360;
-          body[i].y = 280;
+          body[i].x = 40;
+          body[i].y = 40;
         }
         wall.x = randomx();
         wall.y = randomy();
@@ -489,6 +578,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
         gameend = false;
         click = false;
         random2();
+        vavaotuong = false;
       }
       return SDL_APP_CONTINUE;
     }
