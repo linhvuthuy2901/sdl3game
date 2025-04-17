@@ -16,17 +16,19 @@ using namespace std;
 #include <cstdlib>
 #include <ctime>
 #include <string>
+#include <SDL3/SDL_audio.h>
+
 
 const int GRID_SIZE = 40;
-const int WALLSIZE = 6;
-float wallx[] = {GRID_SIZE * 8,  GRID_SIZE * 7,  GRID_SIZE * 2,
-                 GRID_SIZE * 18, GRID_SIZE * 16, GRID_SIZE * 3};
-float wally[] = {GRID_SIZE * 13, GRID_SIZE * 7, GRID_SIZE * 4,
-                 GRID_SIZE * 2,  GRID_SIZE * 8, GRID_SIZE * 11};
-float wallw[] = {GRID_SIZE * 1, GRID_SIZE * 10, GRID_SIZE * 1,
-                 GRID_SIZE,     GRID_SIZE,      GRID_SIZE * 11};
-float wallh[] = {GRID_SIZE * 5, GRID_SIZE,     GRID_SIZE * 4,
-                 GRID_SIZE * 8, GRID_SIZE * 7, GRID_SIZE};
+const int WALLSIZE = 7;
+float wallx[] = {GRID_SIZE * 8,  GRID_SIZE * 7, GRID_SIZE * 2, GRID_SIZE * 18,
+                 GRID_SIZE * 16, GRID_SIZE * 3, GRID_SIZE * 16};
+float wally[] = {GRID_SIZE * 13, GRID_SIZE * 7,  GRID_SIZE * 4, GRID_SIZE * 2,
+                 GRID_SIZE * 8,  GRID_SIZE * 11, GRID_SIZE * 16};
+float wallw[] = {GRID_SIZE * 1, GRID_SIZE * 10, GRID_SIZE * 1, GRID_SIZE,
+                 GRID_SIZE,     GRID_SIZE * 11, GRID_SIZE * 7};
+float wallh[] = {GRID_SIZE * 5, GRID_SIZE, GRID_SIZE * 4, GRID_SIZE * 8,
+                 GRID_SIZE * 7, GRID_SIZE, GRID_SIZE};
 
 SDL_Window *window;
 SDL_Renderer *renderer;
@@ -55,6 +57,8 @@ SDL_Surface *scoreSurface;
 SDL_Texture *scoreTexture;
 SDL_Surface *highScoreSurface;
 SDL_Texture *highScoreTexture;
+SDL_Surface *LevelSurface;
+SDL_Texture *LevelTexture;
 
 const int WINDOW_HEIGHT = 800;
 const int WINDOW_WIDTH = 1000;
@@ -67,9 +71,11 @@ int increasetime = 30;
 int directionwall = false;
 int consttime = 150;
 int nowtime = 0;
+int uplevel=4;//Sau khi ăn này mồi thì tăng 1 level
 
 int score = 0;
 int highScore = 0;
+int level=1;
 
 // TỌA ĐỘ CỦA PHÙ THỦY
 int toadox;
@@ -134,24 +140,17 @@ void drawwall() {
   SDL_RenderTexture(renderer, tex8, NULL, &rect3);
 }
 
+SDL_FRect rw1, rw2, rw3, rw4, rw5, rw6, rw7;
+SDL_FRect rectwall[] = {rw1, rw2, rw3, rw4, rw5, rw6, rw7};
 void drawwallDoNotRun() {
-  SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-  SDL_FRect rectwall1 = {wallx[0], wally[0], wallw[0], wallh[0]};
-  SDL_RenderTexture(renderer, tex9, NULL, &rectwall1);
-  SDL_FRect rectwall2 = {wallx[1], wally[1], wallw[1], wallh[1]};
-  SDL_RenderTexture(renderer, tex9, NULL, &rectwall2);
-  SDL_FRect rectwall3 = {wallx[2], wally[2], wallw[2], wallh[2]};
-  SDL_RenderTexture(renderer, tex9, NULL, &rectwall3);
-  SDL_FRect rectwall4 = {wallx[3], wally[3], wallw[3], wallh[3]};
-  SDL_RenderTexture(renderer, tex9, NULL, &rectwall4);
-  SDL_FRect rectwall5 = {wallx[4], wally[4], wallw[4], wallh[4]};
-  SDL_RenderTexture(renderer, tex9, NULL, &rectwall5);
-  SDL_FRect rectwall6 = {wallx[5], wally[5], wallw[5], wallh[5]};
-  SDL_RenderTexture(renderer, tex9, NULL, &rectwall6);
+  for (int i = 0; i < WALLSIZE; i++) {
+    rectwall[i] = {wallx[i], wally[i], wallw[i], wallh[i]};
+    SDL_RenderTexture(renderer, tex9, NULL, &rectwall[i]);
+  }
 }
 
 void drawphuthuy() {
-  SDL_FRect rectphuthuy = {toadox * 1.0f, toadoy * 1.0f, GRID_SIZE * 3,
+  SDL_FRect rectphuthuy = {(WINDOW_WIDTH-4*GRID_SIZE)* 1.0f, (GRID_SIZE*3) * 1.0f, GRID_SIZE * 3,
                            GRID_SIZE * 3};
   SDL_RenderTexture(renderer, tex10, NULL, &rectphuthuy);
 }
@@ -182,7 +181,10 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result) {
   SDL_DestroyTexture(scoreTexture);
   SDL_DestroySurface(highScoreSurface);
   SDL_DestroyTexture(highScoreTexture);
+  SDL_DestroySurface(LevelSurface);
+  SDL_DestroyTexture(LevelTexture);
 }
+
 
 void random2() {
   Food.x = randomx();
@@ -210,7 +212,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     return SDL_APP_FAILURE;
   }
   window =
-      SDL_CreateWindow("Snake Game toi yeu", WINDOW_WIDTH, WINDOW_HEIGHT, NULL);
+      SDL_CreateWindow("Snake Game - INT2215_7 - 24021548", WINDOW_WIDTH, WINDOW_HEIGHT, NULL);
   if (!window) {
     SDL_Log("Error creating window: %s", SDL_GetError());
     return SDL_APP_FAILURE;
@@ -357,6 +359,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
       font, highScoreText.c_str(), strlen(highScoreText.c_str()), textColor);
   highScoreTexture = SDL_CreateTextureFromSurface(renderer, highScoreSurface);
 
+  //Khởi tạo level
+string LevelText = "Level : " + to_string(level);
+  LevelSurface = TTF_RenderText_Solid(
+      font, highScoreText.c_str(), strlen(LevelText.c_str()), textColor);
+  LevelTexture = SDL_CreateTextureFromSurface(renderer, LevelSurface);
+
   for (int i = length - 1; i >= 0; i--) {
     body.push_back({40, 40, GRID_SIZE, GRID_SIZE});
   }
@@ -368,7 +376,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
   Food.y = randomy();
   wall.x = randomx();
   wall.y = randomy();
-  if (wall.y == 40) {
+  if (wall.y == body[0].y) {
     wall.y = randomy();
   }
   for (int i = 0; i < WALLSIZE; i++) {
@@ -457,7 +465,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     if (vavaotuong == false) {
       drawwallDoNotRun();
     }
-    drawphuthuy();
+    
 
     TTF_Font *font = TTF_OpenFont("font_pixel.ttf", 24);
     SDL_Color textColor = {255, 255, 255, 255};
@@ -483,10 +491,21 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     SDL_FRect highScoreRect = {90.0f, 100.0f, 200.0f, 30.0f};
     SDL_RenderTexture(renderer, highScoreTexture, NULL, &highScoreRect);
 
+    string LevelText = "Level : " + to_string(level);
+    if (LevelSurface)
+      SDL_DestroySurface(LevelSurface);
+    if (LevelTexture)
+      SDL_DestroyTexture(LevelTexture);
+    LevelSurface = TTF_RenderText_Solid(
+        font, LevelText.c_str(), strlen(LevelText.c_str()), textColor);
+    LevelTexture = SDL_CreateTextureFromSurface(renderer, LevelSurface);
+    SDL_FRect LevelRect = {90.0f, 40.0f, 140.0f, 30.0f};
+    SDL_RenderTexture(renderer, LevelTexture, NULL, &LevelRect);
+
     TTF_CloseFont(font);
+      Uint32 currentime = SDL_GetTicks();
 
     if (!gameend) {
-      Uint32 currentime = SDL_GetTicks();
 
       if (currentime - lastime >= timedelay) {
         lastime = currentime;
@@ -532,9 +551,11 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
           touch();
         }
       }
-      if (countf == 5 && timedelay >= 100) {
+      if (countf == uplevel && timedelay >= 80) {
         timedelay -= increasetime;
         countf = 0;
+        level+=1;
+        uplevel+=3;
       }
 
       for (int i = length - 1; i >= 0; i--) {
@@ -564,9 +585,9 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
           vavaotuong = true;
         }
       }
-
       if ((currentime - lastimeeatfood >= 7000) && mark == true) {
         lastimeeatfood = currentime;
+        
         for (int i = length - 1; i > 0; i--) {
           body[i] = body[i - 1];
         }
@@ -642,6 +663,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
         if (wall.y == 280) {
           wall.y = randomy();
         }
+        lastimeeatfood=currentime;
         direction = RIGHT;
         pendingDirection = RIGHT;
         countf = 0;
@@ -651,6 +673,8 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
         random2();
         vavaotuong = false;
         score = 0;
+        uplevel=4;
+        level=1;
         if (wall.y == 40) {
           wall.y = randomy();
         }
