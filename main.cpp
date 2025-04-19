@@ -66,6 +66,8 @@ const int WINDOW_WIDTH = 1000;
 SDL_FRect destRect = {310.0f, 450.0f, 370.0f, 300.0f}; /// RESTART
 SDL_FRect srcRect = {0.0f, 0.0f, 0.0f, 0.0f};
 SDL_FRect destRect2 = {400.0f, 300.0f, 200.0f, 100.0f};
+SDL_FRect destRect3 = {240.0f, -20.0f, 500.0f, 400.0f};
+
 
 int increasetime = 30;
 int directionwall = false;
@@ -149,11 +151,6 @@ void drawwallDoNotRun() {
   }
 }
 
-void drawphuthuy() {
-  SDL_FRect rectphuthuy = {(WINDOW_WIDTH-4*GRID_SIZE)* 1.0f, (GRID_SIZE*3) * 1.0f, GRID_SIZE * 3,
-                           GRID_SIZE * 3};
-  SDL_RenderTexture(renderer, tex10, NULL, &rectphuthuy);
-}
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result) {
   SDL_DestroyRenderer(renderer);
@@ -205,6 +202,7 @@ void touch() {
   if (score > highScore)
     highScore = score;
 }
+
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
   if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -319,13 +317,13 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SDL_Log("Error loading restart.bmp2: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
-  tex9 = SDL_CreateTextureFromSurface(renderer, bmp8);
+  tex9 = SDL_CreateTextureFromSurface(renderer, bmp9);
   if (tex9 == nullptr) {
     SDL_Log("Error creating texture: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
-  // VẼ PHÙ THỦY
-  bmp10 = SDL_LoadBMP("phuthuy.bmp");
+  //GAMEOVER
+  bmp10 = SDL_LoadBMP("gameover.bmp");
   if (bmp10 == nullptr) {
     SDL_Log("Error loading restart.bmp2: %s", SDL_GetError());
     return SDL_APP_FAILURE;
@@ -335,6 +333,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SDL_Log("Error creating texture: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
+
   // Khởi tạo TTF
   if (!TTF_Init()) {
     SDL_Log("Can not down ttf:%s", SDL_GetError());
@@ -649,45 +648,47 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     }
 
     if (gameend == true) {
-      restartGame();
+      SDL_RenderTexture(renderer, tex10, &srcRect, &destRect3); // Render gameover.bmp
+      SDL_RenderTexture(renderer, tex, &srcRect, &destRect2); // Render restart button
+      SDL_RenderPresent(renderer);
       if (click == true) {
-        timedelay = consttime;
-        body.erase(body.begin() + 3, body.end());
-        length = 3;
-        for (int i = 0; i < 3; i++) {
-          body[i].x = 40;
-          body[i].y = 40;
-        }
-        wall.x = randomx();
-        wall.y = randomy();
-        if (wall.y == 280) {
-          wall.y = randomy();
-        }
-        lastimeeatfood=currentime;
-        direction = RIGHT;
-        pendingDirection = RIGHT;
-        countf = 0;
-        countf2 = 1;
-        gameend = false;
-        click = false;
-        random2();
-        vavaotuong = false;
-        score = 0;
-        uplevel=4;
-        level=1;
-        if (wall.y == 40) {
-          wall.y = randomy();
-        }
-        for (int i = 0; i < WALLSIZE; i++) {
-          if (Food.x >= wallx[i] && Food.y >= wally[i] &&
-              Food.x <= wallx[i] + wallw[i] && Food.y <= wally[i] + wallh[i]) {
-            Food.x = randomx();
-            Food.y = randomy();
+          timedelay = consttime;
+          body.erase(body.begin() + 3, body.end());
+          length = 3;
+          for (int i = 0; i < 3; i++) {
+              body[i].x = 40;
+              body[i].y = 40;
           }
-        }
+          wall.x = randomx();
+          wall.y = randomy();
+          if (wall.y == 280) {
+              wall.y = randomy();
+          }
+          lastimeeatfood = currentime;
+          direction = RIGHT;
+          pendingDirection = RIGHT;
+          countf = 0;
+          countf2 = 1;
+          gameend = false;
+          click = false;
+          random2();
+          vavaotuong = false;
+          score = 0;
+          uplevel = 4;
+          level = 1;
+          if (wall.y == 40) {
+              wall.y = randomy();
+          }
+          for (int i = 0; i < WALLSIZE; i++) {
+              if (Food.x >= wallx[i] && Food.y >= wally[i] &&
+                  Food.x <= wallx[i] + wallw[i] && Food.y <= wally[i] + wallh[i]) {
+                  Food.x = randomx();
+                  Food.y = randomy();
+              }
+          }
       }
       return SDL_APP_CONTINUE;
-    }
+  }
     SDL_RenderPresent(renderer);
   }
   return SDL_APP_CONTINUE;
