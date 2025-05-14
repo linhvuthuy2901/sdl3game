@@ -22,7 +22,7 @@
   → **Thời gian hồi chiêu: 7s** sau mỗi lần dùng  
 + Khi bắt đầu, người chơi được cấp **3 viên đạn**  
   → Dùng phím **SPACE** để bắn  
-  → Muốn hồi lại **1 viên đạn**, cần ăn **3 mồi**  
+  → Muốn hồi lại **1 viên đạn**, cần ăn **3 mồi** , số đạn tối đa là **3 viên**
   → **Lưu ý**:  
     - Đạn **không xuyên tường**, nếu trúng tường sẽ biến mất nhưng **không trừ điểm**  
     - Nếu **trúng mồi** sẽ được cộng **10 điểm**  
