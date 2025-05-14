@@ -32,7 +32,7 @@
   → Tự động biến mất sau **10s**  
   → Nếu ăn được sẽ **ngẫu nhiên**:  
     - Nhận hoặc mất điểm từ **-20 đến +30**  
-    - Làm **giảm tốc độ rắn tạm thời**
+    - Làm **giảm tốc độ rắn**
 
 + **Tường di động (moving wall)**  
   → Di chuyển theo **chiều ngang**  
