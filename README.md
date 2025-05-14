@@ -1,6 +1,6 @@
 ## Họ và tên: Vũ Thuỳ Linh  
-## MSSV: 24021548  
-## Lớp: INT2215_7  
+**MSSV**: 24021548  
+**Lớp**: INT2215_7  
 
 # Project: Snake Evolution
 
@@ -15,14 +15,16 @@
 + Mỗi lần ăn mồi sẽ được cộng **1 điểm**  
 + Rắn **tăng tốc độ** theo mỗi level  
 + Nếu rắn **va vào tường hoặc thân mình** thì sẽ thua → Ấn **RESTART** để chơi lại  
-+ Hệ thống sẽ **lưu lại điểm cao nhất ( HIGHSCORE )**  
++ Hệ thống sẽ **lưu lại điểm cao nhất (HIGHSCORE)**  
++ Nếu rắn **đi hết toàn bộ bản đồ**, sẽ được **chuyển sang map mới với độ khó cao hơn**
 
 ### *Cải tiến*  
 + Ấn phím **A** để kích hoạt **tốc biến** (dash) giúp đi xuyên thân hoặc tường  
   → **Thời gian hồi chiêu: 7s** sau mỗi lần dùng  
+
 + Khi bắt đầu, người chơi được cấp **3 viên đạn**  
   → Dùng phím **SPACE** để bắn  
-  → Muốn hồi lại **1 viên đạn**, cần ăn **3 mồi** , số đạn tối đa là **3 viên**
+  → Muốn hồi lại **1 viên đạn**, cần ăn **3 mồi** , số đạn tối đa là **3 viên**  
   → **Lưu ý**:  
     - Đạn **không xuyên tường**, nếu trúng tường sẽ biến mất nhưng **không trừ điểm**  
     - Nếu **trúng mồi** sẽ được cộng **10 điểm**  
@@ -30,7 +32,7 @@
 
 + Cứ mỗi lần ăn **5 mồi**, sẽ xuất hiện **hộp bí ẩn (mystery box)**  
   → Tự động biến mất sau **10s**  
-  → Nếu ăn được sẽ :  
+  → Nếu ăn được sẽ:  
     - **Ngẫu nhiên** nhận hoặc mất điểm từ **-20 đến +30**  
     - Làm **giảm tốc độ rắn**
 
@@ -45,5 +47,5 @@
 
 + Cách viết chữ trên nền: ChatGPT  
 + Hướng dẫn sử dụng thư viện `SDL_image`:  
-  https://glusoft.com/sdl2-tutorials/display-image-sdl_image/
-+ Đồ hoạ : Google
+  🔗 [https://glusoft.com/sdl2-tutorials/display-image-sdl_image/](https://glusoft.com/sdl2-tutorials/display-image-sdl_image/)  
++ Đồ hoạ: Google
