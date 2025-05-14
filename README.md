@@ -15,7 +15,7 @@
 + Mỗi lần ăn mồi sẽ được cộng **1 điểm**  
 + Rắn **tăng tốc độ** theo mỗi level  
 + Nếu rắn **va vào tường hoặc thân mình** thì sẽ thua → Ấn **RESTART** để chơi lại  
-+ Hệ thống sẽ **lưu lại điểm cao nhất (high score)**  
++ Hệ thống sẽ **lưu lại điểm cao nhất ( HIGHSCORE )**  
 
 ### *Cải tiến*  
 + Ấn phím **A** để kích hoạt **tốc biến** (dash) giúp đi xuyên thân hoặc tường  
