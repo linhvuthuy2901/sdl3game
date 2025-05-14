@@ -30,8 +30,8 @@
 
 + Cứ mỗi lần ăn **5 mồi**, sẽ xuất hiện **hộp bí ẩn (mystery box)**  
   → Tự động biến mất sau **10s**  
-  → Nếu ăn được sẽ **ngẫu nhiên**:  
-    - Nhận hoặc mất điểm từ **-20 đến +30**  
+  → Nếu ăn được sẽ :  
+    - **Ngẫu nhiên** nhận hoặc mất điểm từ **-20 đến +30**  
     - Làm **giảm tốc độ rắn**
 
 + **Tường di động (moving wall)**  
