@@ -46,3 +46,4 @@
 + Cách viết chữ trên nền: ChatGPT  
 + Hướng dẫn sử dụng thư viện `SDL_image`:  
   https://glusoft.com/sdl2-tutorials/display-image-sdl_image/
++ Đồ hoạ : Google
